@@ -1,0 +1,131 @@
+{
+  "seed": 42,
+  "horizon_days": 16,
+  "features": [
+    "sales_lag_16",
+    "sales_lag_17",
+    "sales_lag_18",
+    "sales_lag_19",
+    "sales_lag_20",
+    "sales_lag_21",
+    "sales_lag_28",
+    "sales_lag_35",
+    "sales_lag_42",
+    "sales_lag_49",
+    "sales_lag_364",
+    "sales_roll_mean_7",
+    "sales_roll_mean_14",
+    "sales_roll_mean_28",
+    "sales_roll_mean_56",
+    "sales_roll_mean_112",
+    "sales_roll_std_28",
+    "same_weekday_mean",
+    "dayofweek",
+    "day",
+    "month",
+    "dayofyear",
+    "payday",
+    "onpromotion",
+    "holiday_national",
+    "holiday_regional",
+    "holiday_local",
+    "work_day_event",
+    "special_event",
+    "earthquake_period",
+    "oil_lag_16",
+    "transactions_lag_16",
+    "store_nbr",
+    "family",
+    "city",
+    "type",
+    "cluster"
+  ],
+  "best_optuna_params": {
+    "learning_rate": 0.027873582156797225,
+    "num_leaves": 122,
+    "max_depth": 7,
+    "min_child_samples": 203,
+    "subsample": 0.8221781136630013,
+    "colsample_bytree": 0.7196905905111352,
+    "reg_alpha": 0.00022700874567649476,
+    "reg_lambda": 0.05476077349415468,
+    "objective": "regression",
+    "n_estimators": 1800,
+    "random_state": 42,
+    "n_jobs": -1,
+    "verbosity": -1
+  },
+  "lightgbm_best_iteration": 808,
+  "validation_metrics": [
+    {
+      "Modelo": "LightGBM Optuna",
+      "RMSLE": 0.39434771262962603,
+      "MAE": 59.41115899201128,
+      "WAPE": 0.12332029202805599
+    },
+    {
+      "Modelo": "LightGBM inicial",
+      "RMSLE": 0.39799377884612935,
+      "MAE": 61.1254906681068,
+      "WAPE": 0.1268787461386293
+    },
+    {
+      "Modelo": "LightGBM Tweedie",
+      "RMSLE": 0.41729017696801735,
+      "MAE": 59.62508320637755,
+      "WAPE": 0.12376433649773329
+    },
+    {
+      "Modelo": "N-BEATS compacto",
+      "RMSLE": 0.436159193245271,
+      "MAE": 62.20243835449219,
+      "WAPE": 0.1291141755927359
+    },
+    {
+      "Modelo": "Promedio móvil 28 días",
+      "RMSLE": 0.4687629143544298,
+      "MAE": 107.66454315185547,
+      "WAPE": 0.22348027161528422
+    },
+    {
+      "Modelo": "Naïve semanal",
+      "RMSLE": 3.344109004744194,
+      "MAE": 303.19891357421875,
+      "WAPE": 0.6293527478670741
+    }
+  ],
+  "rolling_origin": [
+    {
+      "Modelo": "Bloque 1",
+      "RMSLE": 0.3870450044499128,
+      "MAE": 54.29292888092557,
+      "WAPE": 0.11896148926728167,
+      "Inicio": "2017-06-13",
+      "Fin": "2017-06-28"
+    },
+    {
+      "Modelo": "Bloque 2",
+      "RMSLE": 0.37590394027012985,
+      "MAE": 51.397716813759516,
+      "WAPE": 0.1060179308745208,
+      "Inicio": "2017-06-29",
+      "Fin": "2017-07-14"
+    },
+    {
+      "Modelo": "Bloque 3",
+      "RMSLE": 0.39442061033360537,
+      "MAE": 59.41186249659441,
+      "WAPE": 0.1233217522990237,
+      "Inicio": "2017-07-15",
+      "Fin": "2017-07-30"
+    },
+    {
+      "Modelo": "Bloque 4",
+      "RMSLE": 0.4012541232045428,
+      "MAE": 64.31961654569982,
+      "WAPE": 0.1376872252857716,
+      "Inicio": "2017-07-31",
+      "Fin": "2017-08-15"
+    }
+  ]
+}

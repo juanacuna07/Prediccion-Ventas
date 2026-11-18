@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pronóstico de ventas · Corporación Favorita</title>
+  <meta name="description" content="Aplicación web interactiva para consultar el pronóstico de ventas diarias de Corporación Favorita (16–31 ago 2017) con LightGBM + Optuna.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=7">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="brand" href="#top"><span class="dot"></span>Favorita<span class="brand-sub">forecast</span></a>
+    <nav>
+      <a href="#pronostico">Pronóstico</a>
+      <a href="#modelos">Modelos</a>
+      <a href="#validacion">Validación</a>
+      <a href="#shap">Variables</a>
+      <a href="#metodologia">Metodología</a>
+      <a href="#descargas">Descargas</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero-band">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="wrap hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="emo" aria-hidden="true">🛒</span>Inteligencia de demanda · Retail</p>
+        <h1>Sabe cuánto vas a vender <em>antes</em> de que ocurra</h1>
+        <p class="lead">Pronóstico diario de ventas para <strong>54 tiendas y 33 familias de productos</strong> de Corporación Favorita, con 16 días de anticipación. Menos quiebres de inventario, menos mermas, mejores promociones.</p>
+        <div class="cta">
+          <a class="btn-cta" href="#pronostico">Probar el explorador</a>
+          <a class="btn-ghost" href="#modelos">Ver precisión del modelo</a>
+        </div>
+        <p class="authors">Universidad de Ibagué · Sistemas Inteligentes<br>Juan Camilo Acuña Rojas · Luis Miguel Hernández</p>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="stage">
+          <div class="glass">
+            <span class="g-label">Ventas pronosticadas · 16 días</span>
+            <strong class="g-big">Error WAPE 12,3%</strong>
+            <div class="bars">
+              <i style="--h:38%"></i><i style="--h:52%"></i><i style="--h:44%"></i><i style="--h:63%"></i><i style="--h:57%"></i><i style="--h:74%"></i><i style="--h:68%"></i><i style="--h:88%"></i>
+            </div>
+          </div>
+          <span class="fe e1">📈</span>
+          <span class="fe e2">🛒</span>
+          <span class="fe e3">📦</span>
+          <span class="fe e4">🍎</span>
+          <span class="fe e5">🥖</span>
+          <span class="fe e6">🏷️</span>
+          <div class="badge"><span class="live"></span>1.782 series activas</div>
+        </div>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="kpis" id="hero-kpis">
+        <div class="kpi"><span class="kpi-v" data-k="rmsle">—</span><span class="kpi-l">RMSLE en validación</span></div>
+        <div class="kpi"><span class="kpi-v" data-k="wape">—</span><span class="kpi-l">WAPE en validación</span></div>
+        <div class="kpi"><span class="kpi-v">1.782</span><span class="kpi-l">series temporales</span></div>
+        <div class="kpi"><span class="kpi-v" data-k="nfeat">—</span><span class="kpi-l">variables sin filtración</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALOR PARA EL NEGOCIO -->
+  <section class="wrap section" id="valor">
+    <div class="sec-head">
+      <p class="eyebrow"><span class="emo" aria-hidden="true">📈</span>Para el negocio</p>
+      <h2>De la predicción a la decisión</h2>
+    </div>
+    <div class="value-grid">
+      <article class="value v1">
+        <span class="emo-lg" aria-hidden="true">📦</span>
+        <h3>Inventario a la medida</h3>
+        <p>Anticipa la demanda por tienda y familia para reponer lo justo y evitar quiebres de stock.</p>
+      </article>
+      <article class="value v2">
+        <span class="emo-lg" aria-hidden="true">🍎</span>
+        <h3>Menos mermas</h3>
+        <p>Menos pérdidas por vencimiento en productos perecederos al ajustar pedidos a la demanda esperada.</p>
+      </article>
+      <article class="value v3">
+        <span class="emo-lg" aria-hidden="true">🏷️</span>
+        <h3>Promociones con sentido</h3>
+        <p>Las promociones activas son la tercera señal más influyente del modelo: planifícalas con datos.</p>
+      </article>
+      <article class="value v4">
+        <span class="emo-lg" aria-hidden="true">✅</span>
+        <h3>Confiable en el tiempo</h3>
+        <p>Validado en cuatro bloques consecutivos de 16 días con un error estable (WAPE 10,6% – 13,8%).</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- EXPLORADOR -->
+  <section id="pronostico" class="wrap section">
+    <div class="sec-head">
+      <p class="eyebrow">01 · Componente de actuación</p>
+      <h2><span class="emo" aria-hidden="true">🔮</span>Explorador de pronósticos</h2>
+      <p class="sec-lead">Elige una tienda, una familia de productos y un rango de fechas dentro del horizonte de prueba (16–31 ago 2017). La línea punteada muestra cómo se comportó el modelo contra las ventas reales en la ventana de validación.</p>
+    </div>
+
+    <div class="panel controls">
+      <label>Tienda
+        <select id="sel-store"></select>
+      </label>
+      <label>Familia de productos
+        <select id="sel-family"></select>
+      </label>
+      <label>Desde
+        <select id="sel-from"></select>
+      </label>
+      <label>Hasta
+        <select id="sel-to"></select>
+      </label>
+      <label class="check"><input type="checkbox" id="chk-val" checked> Mostrar validación (real vs. predicho)</label>
+    </div>
+
+    <div class="kpis kpis-sm" id="ex-kpis">
+      <div class="kpi"><span class="kpi-v" id="k-total">—</span><span class="kpi-l">unidades pronosticadas</span></div>
+      <div class="kpi"><span class="kpi-v" id="k-avg">—</span><span class="kpi-l">promedio diario</span></div>
+      <div class="kpi"><span class="kpi-v" id="k-peak">—</span><span class="kpi-l" id="k-peak-l">día pico</span></div>
+      <div class="kpi"><span class="kpi-v" id="k-wape">—</span><span class="kpi-l">WAPE de esta selección en validación</span></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3 id="ts-title">Serie temporal</h3>
+        <div class="chart-box tall"><canvas id="ch-ts" role="img" aria-label="Serie temporal de ventas reales, predichas y pronóstico"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3 id="bd-title">Desglose</h3>
+        <div class="chart-box tall"><canvas id="ch-bd" role="img" aria-label="Desglose del pronóstico por familia o tienda"></canvas></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="row-between">
+        <h3>Detalle diario</h3>
+        <button class="btn" id="btn-csv" type="button">Descargar selección (CSV)</button>
+      </div>
+      <div class="table-wrap">
+        <table id="tbl-days">
+          <thead><tr><th>Fecha</th><th>Día</th><th class="num">Pronóstico (unid.)</th><th class="num">vs. promedio del rango</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="note" id="data-note">
+      <strong>Nota sobre los datos.</strong> Al comparar el archivo <code>submission.csv</code> con la validación, algunas familias de baja rotación o perecederas
+      (p. ej. <em>Carnes</em>, <em>Pollo</em>, <em>Comidas preparadas</em>) aparecen con pronósticos cercanos a cero en las tiendas de mayor volumen,
+      mucho menores que su nivel histórico reciente. Es probable que se deba a la regla «pronóstico nulo a series sin actividad reciente» del notebook;
+      conviene revisarla antes de usar estos valores operativamente.
+    </div>
+  </section>
+
+  <!-- MODELOS -->
+  <section id="modelos" class="wrap section">
+    <div class="sec-head">
+      <p class="eyebrow">02 · Resultados</p>
+      <h2><span class="emo" aria-hidden="true">🏆</span>Comparación de modelos</h2>
+      <p class="sec-lead">Seis alternativas evaluadas en la ventana del 15 al 30 de julio de 2017. LightGBM ajustado con Optuna obtiene el menor error en las tres métricas.</p>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="row-between">
+          <h3>Error por modelo</h3>
+          <div class="seg" id="seg-metric" role="tablist" aria-label="Métrica">
+            <button class="on" data-m="RMSLE" type="button">RMSLE</button>
+            <button data-m="MAE" type="button">MAE</button>
+            <button data-m="WAPE" type="button">WAPE</button>
+          </div>
+        </div>
+        <div class="chart-box"><canvas id="ch-models" role="img" aria-label="Comparación de error entre modelos"></canvas></div>
+        <p class="fine">Menor es mejor. El modelo naïve semanal tiene un RMSLE de 3,34, por lo que se omite del gráfico de esa métrica para conservar la escala (consúltalo en la tabla).</p>
+      </div>
+      <div class="panel">
+        <h3>Tabla 1 · Desempeño en validación</h3>
+        <div class="table-wrap">
+          <table id="tbl-models"><thead><tr><th>Modelo</th><th class="num">RMSLE</th><th class="num">MAE</th><th class="num">WAPE</th></tr></thead><tbody></tbody></table>
+        </div>
+        <h3 class="mt">Búsqueda con Optuna (20 ensayos)</h3>
+        <div class="chart-box short"><canvas id="ch-optuna" role="img" aria-label="Mejor RMSLE acumulado por ensayo de Optuna"></canvas></div>
+        <p class="fine">RMSLE de cada ensayo y mejor valor acumulado.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALIDACION -->
+  <section id="validacion" class="wrap section">
+    <div class="sec-head">
+      <p class="eyebrow">03 · Estabilidad</p>
+      <h2><span class="emo" aria-hidden="true">📅</span>Validación temporal por origen móvil</h2>
+      <p class="sec-lead">LightGBM ajustado evaluado sobre cuatro bloques consecutivos de 16 días: el RMSLE se mantiene entre 0,376 y 0,401.</p>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <h3>RMSLE y WAPE por bloque</h3>
+        <div class="chart-box"><canvas id="ch-roll" role="img" aria-label="RMSLE y WAPE por bloque temporal"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>Tabla 2 · Bloques</h3>
+        <div class="table-wrap">
+          <table id="tbl-roll"><thead><tr><th>Bloque</th><th>Periodo</th><th class="num">RMSLE</th><th class="num">MAE</th><th class="num">WAPE</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHAP -->
+  <section id="shap" class="wrap section">
+    <div class="sec-head">
+      <p class="eyebrow">04 · Interpretabilidad</p>
+      <h2><span class="emo" aria-hidden="true">🔍</span>¿Qué mira el modelo?</h2>
+      <p class="sec-lead">Valores SHAP sobre 5.000 observaciones de validación. La dinámica reciente de ventas y la estacionalidad semanal concentran el mayor peso, seguidas por las promociones y la familia del producto.</p>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Top 15 · impacto medio |SHAP|</h3>
+        <div class="chart-box tall"><canvas id="ch-shap" role="img" aria-label="Importancia de variables según SHAP"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>Resumen SHAP (notebook)</h3>
+        <img class="figure" src="assets/shap_summary.png" alt="Gráfico resumen de valores SHAP generado en el notebook" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- METODOLOGIA -->
+  <section id="metodologia" class="wrap section">
+    <div class="sec-head">
+      <p class="eyebrow">05 · Cómo se construyó</p>
+      <h2><span class="emo" aria-hidden="true">🛠️</span>Metodología</h2>
+    </div>
+    <ol class="steps">
+      <li><span class="n"><span class="emo-step" aria-hidden="true">🗂️</span></span><div><h4>Datos</h4><p>3.000.888 registros diarios (1 ene 2013 – 15 ago 2017) de 54 tiendas y 33 familias, integrando tiendas, transacciones, feriados y precio del petróleo. Sin usar información futura.</p></div></li>
+      <li><span class="n"><span class="emo-step" aria-hidden="true">🧩</span></span><div><h4>Variables</h4><p>37 características con desfase mínimo de 16 días: rezagos, medias y desviación móviles, calendario, feriados por alcance, promociones, petróleo, transacciones e identificadores estructurales.</p></div></li>
+      <li><span class="n"><span class="emo-step" aria-hidden="true">🤖</span></span><div><h4>Modelos</h4><p>LightGBM base, optimizado (Optuna), Tweedie (p = 1,3), N-BEATS compacto y dos líneas base. Objetivo <code>log(1 + ventas)</code>.</p></div></li>
+      <li><span class="n"><span class="emo-step" aria-hidden="true">✅</span></span><div><h4>Validación</h4><p>Ventana 15–30 jul 2017 y origen móvil en cuatro bloques de 16 días. Métricas: RMSLE, MAE y WAPE.</p></div></li>
+      <li><span class="n"><span class="emo-step" aria-hidden="true">🚀</span></span><div><h4>Despliegue</h4><p>Reentrenamiento con el histórico hasta el 15 ago 2017 y pronóstico de 28.512 observaciones (16–31 ago), consultables en esta página.</p></div></li>
+    </ol>
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Grupos de variables</h3>
+        <ul class="plain">
+          <li><strong>Rezagos y móviles:</strong> lags 16–21, 28, 35, 42, 49, 56 y 364; medias de 7, 14, 28, 56 y 112 días; desviación de 28 días; promedio del mismo día de la semana.</li>
+          <li><strong>Calendario y eventos:</strong> día de la semana, del mes, mes, día del año, quincena/fin de mes, feriados nacionales/regionales/locales, eventos y periodo posterior al terremoto de 2016.</li>
+          <li><strong>Externas y promociones:</strong> productos en promoción, petróleo y transacciones con rezago de 16 días.</li>
+          <li><strong>Estructurales:</strong> tienda, familia, ciudad, tipo y clúster como categóricas nativas.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Hiperparámetros (LightGBM + Optuna)</h3>
+        <div class="table-wrap"><table id="tbl-params"><tbody></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DESCARGAS -->
+  <section id="descargas" class="wrap section">
+    <div class="sec-head">
+      <p class="eyebrow">06 · Recursos</p>
+      <h2><span class="emo" aria-hidden="true">📥</span>Descargas</h2>
+    </div>
+    <div class="dl-grid">
+      <a class="dl" href="assets/informe-tecnico.pdf" target="_blank" rel="noopener"><span class="emo-dl" aria-hidden="true">📄</span><strong>Informe técnico</strong><span>PDF · artículo completo</span></a>
+      <a class="dl" href="notebook_outputs/submission.csv" download><span class="emo-dl" aria-hidden="true">📊</span><strong>submission.csv</strong><span>Pronóstico 16–31 ago 2017</span></a>
+      <a class="dl" href="notebook_outputs/validation_predictions.csv" download><span class="emo-dl" aria-hidden="true">🧪</span><strong>validation_predictions.csv</strong><span>Real vs. predicho (validación)</span></a>
+      <a class="dl" href="notebook_outputs/shap_feature_importance.csv" download><span class="emo-dl" aria-hidden="true">🔍</span><strong>shap_feature_importance.csv</strong><span>Importancia SHAP de 37 variables</span></a>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p>Universidad de Ibagué · Facultad de Ingeniería · Programa de Ingeniería de Sistemas · Ibagué, Colombia</p>
+    <p class="fine">Emojis: <a href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener">Twemoji</a> (CC-BY 4.0). Datos: Corporación Favorita, <a href="https://www.kaggle.com/competitions/store-sales-time-series-forecasting" target="_blank" rel="noopener">Store Sales – Time Series Forecasting</a> (Kaggle, 2017). Referencias: Ke et al. (2017) LightGBM · Akiba et al. (2019) Optuna · Oreshkin et al. (2020) N-BEATS · Lundberg &amp; Lee (2017) SHAP.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@twemoji/api@15.0.0/dist/twemoji.min.js" crossorigin="anonymous"></script>
+<script>
+  // Reemplaza los emojis Unicode por los gráficos de Twemoji (librería de emojis)
+  twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+</script>
+<script src="vendor/chart.umd.js"></script>
+<script src="data/data.js?v=3"></script>
+<script src="js/app.js?v=6"></script>
+</body>
+</html>
